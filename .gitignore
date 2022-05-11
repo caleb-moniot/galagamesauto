@@ -127,3 +127,9 @@ dmypy.json
 
 # Pyre type checker
 .pyre/
+
+# Selenium Hub Assets
+assets/
+
+# VSCode workspace files.
+*.code-workspace
