@@ -26,8 +26,7 @@ class TestGalaGames():
         self.sleep_time = 2
 
     def accept_privacy_policy(self):
-        # TODO: Get WebDriverWait + ec working for the shadow dom
-        sleep(self.sleep_time)
+        self.chrome_wait.until(ec.presence_of_element_located((By.XPATH, '/html/body[@class="overflowHidden"]')))
         shadow_host = self.chrome_driver.find_element(By.ID, 'usercentrics-root')
         shadow_root = shadow_host.shadow_root
         shadow_root.find_element(By.CSS_SELECTOR, 'button[data-testid="uc-accept-all-button"]').click()
