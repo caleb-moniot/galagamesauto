@@ -41,10 +41,12 @@ class TestGalaGames():
 
         self.accept_privacy_policy()
 
-        play_element = self.chrome_wait.until(ec.element_to_be_clickable((By.XPATH, "//button[normalize-space()='Play']")))
+        play_element = self.chrome_wait.until(ec.element_to_be_clickable(
+            (By.XPATH, "//button[normalize-space()='Play']")))
         play_element.click()
 
-        form_element = self.chrome_wait.until(ec.visibility_of_element_located((By.CSS_SELECTOR, 'form[novalidate="novalidate"]')))
+        form_element = self.chrome_wait.until(ec.visibility_of_element_located(
+            (By.CSS_SELECTOR, 'form[novalidate="novalidate"]')))
         form_text = form_element.text
 
         assert form_text.startswith('Create your Account'), 'Account creation form not presented'
@@ -57,7 +59,8 @@ class TestGalaGames():
 
         self.accept_privacy_policy()
 
-        search_element = self.chrome_wait.until(ec.element_to_be_clickable((By.XPATH, "//input[@type='text' and @placeholder='Search']")))
+        search_element = self.chrome_wait.until(ec.element_to_be_clickable(
+            (By.XPATH, "//input[@type='text' and @placeholder='Search']")))
         search_element.click()
         search_element.send_keys("best friend")
 
@@ -69,14 +72,27 @@ class TestGalaGames():
         """From the Store page I should be able to filter Town Star items by Epic Rarity"""
         self.chrome_driver.get("https://app.gala.games/store")
 
+        store_town_star_filter = 'https://app.gala.games/store?games=town-star'
+        store_town_star_and_epic_rarity_filter = f'{store_town_star_filter}&rarity=epic'
+
         self.accept_privacy_policy()
 
-        town_star_filter_element = self.chrome_wait.until(ec.element_to_be_clickable((By.XPATH, "//img[@alt='Town Star']")))
+        town_star_filter_element = self.chrome_wait.until(ec.element_to_be_clickable(
+            (By.XPATH, "//img[@alt='Town Star']")))
         town_star_filter_element.click()
+        self.chrome_wait.until(ec.url_to_be(store_town_star_filter))
+
+        actual_url_1 = self.chrome_driver.current_url
+        assert actual_url_1 == store_town_star_filter, f'actual_url_1 ({actual_url_1}) does not match expected_url_1 \
+            ({store_town_star_filter})'
+
         epic_rarity_filter = self.chrome_wait.until(ec.element_to_be_clickable((By.XPATH, '//div[4]/div/i')))
         epic_rarity_filter.click()
+        self.chrome_wait.until(ec.url_to_be(store_town_star_and_epic_rarity_filter))
 
-        # TODO: Ideally there would be some form of validation here to use in an assert.
+        actual_url_2 = self.chrome_driver.current_url
+        assert actual_url_2 == store_town_star_and_epic_rarity_filter, f'actual_url_2 ({actual_url_2}) does not match \
+            expected_url_2 ({store_town_star_and_epic_rarity_filter})'
 
         sleep(self.sleep_time) # Give it some time to capture the video.
 
@@ -84,13 +100,26 @@ class TestGalaGames():
         """From the Store page I should be able to filter Spider Tank items by Rare Rarity"""
         self.chrome_driver.get("https://app.gala.games/store")
 
+        store_spider_tanks_filter = 'https://app.gala.games/store?games=spider-tanks'
+        store_spider_tanks_and_rare_rarity_filter = f'{store_spider_tanks_filter}&rarity=rare'
+
         self.accept_privacy_policy()
 
-        spider_tanks_filter_element = self.chrome_wait.until(ec.element_to_be_clickable((By.XPATH, "//img[@alt='Spider Tanks']")))
+        spider_tanks_filter_element = self.chrome_wait.until(ec.element_to_be_clickable(
+            (By.XPATH, "//img[@alt='Spider Tanks']")))
         spider_tanks_filter_element.click()
+        self.chrome_wait.until(ec.url_to_be(store_spider_tanks_filter))
+
+        actual_url_1 = self.chrome_driver.current_url
+        assert actual_url_1 == store_spider_tanks_filter, f'actual_url_1 ({actual_url_1}) does not match \
+            expected_url_1 ({store_spider_tanks_filter})'
+
         rare_rarity_filter = self.chrome_wait.until(ec.element_to_be_clickable((By.XPATH, '//div[3]/div/i')))
         rare_rarity_filter.click()
+        self.chrome_wait.until(ec.url_to_be(store_spider_tanks_and_rare_rarity_filter))
 
-        # TODO: Ideally there would be some form of validation here to use in an assert.
+        actual_url_2 = self.chrome_driver.current_url
+        assert actual_url_2 == store_spider_tanks_and_rare_rarity_filter, f'actual_url_2 ({actual_url_2}) does not \
+            match expected_url_2 ({store_spider_tanks_and_rare_rarity_filter})'
 
         sleep(self.sleep_time) # Give it some time to capture the video.
