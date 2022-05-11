@@ -1,6 +1,8 @@
 from time import sleep
 from selenium import webdriver
 from selenium.webdriver.common.by import By
+from selenium.webdriver.support.wait import WebDriverWait
+from selenium.webdriver.support import expected_conditions as ec
 
 class TestGalaGames():
     def setup_method(self):
@@ -19,7 +21,16 @@ class TestGalaGames():
         options.set_capability(name='se:screenResolution', value='1920x1080')
         self.chrome_driver = webdriver.Remote(command_executor='http://localhost:4444/wd/hub', options=options)
         self.chrome_driver.maximize_window()
-        self.vars = {}
+        self.chrome_driver.implicitly_wait(10)
+        self.chrome_wait = WebDriverWait(self.chrome_driver, 5)
+        self.sleep_time = 2
+
+    def accept_privacy_policy(self):
+        # TODO: Get WebDriverWait + ec working for the shadow dom
+        sleep(self.sleep_time)
+        shadow_host = self.chrome_driver.find_element(By.ID, 'usercentrics-root')
+        shadow_root = shadow_host.shadow_root
+        shadow_root.find_element(By.CSS_SELECTOR, 'button[data-testid="uc-accept-all-button"]').click()
 
     def teardown_method(self):
         self.chrome_driver.close()
@@ -29,82 +40,58 @@ class TestGalaGames():
         """From the Games page I should not be able to launch Town Star without being logged in"""
         self.chrome_driver.get("https://app.gala.games/games")
 
-        sleep(5) # TODO: Ugly but will suffice until I get a chance to look into WebDriverWait and expected_conditions
+        self.accept_privacy_policy()
 
-        # Accept the Privacy Policy
-        # TODO: Turn this into a function/fixture.
-        shadow_host = self.chrome_driver.find_element(By.ID, 'usercentrics-root')
-        shadow_root = shadow_host.shadow_root
-        shadow_root.find_element(By.CSS_SELECTOR, 'button[data-testid="uc-accept-all-button"]').click()
+        play_element = self.chrome_wait.until(ec.element_to_be_clickable((By.XPATH, "//button[normalize-space()='Play']")))
+        play_element.click()
 
-        sleep(5) # TODO: Ugly but will suffice until I get a chance to look into WebDriverWait and expected_conditions
+        form_element = self.chrome_wait.until(ec.visibility_of_element_located((By.CSS_SELECTOR, 'form[novalidate="novalidate"]')))
+        form_text = form_element.text
 
-        self.chrome_driver.find_element(By.XPATH, "//button[normalize-space()='Play']").click()
-
-        sleep(5) # TODO: Ugly but will suffice until I get a chance to look into WebDriverWait and expected_conditions
-
-        form_text = self.chrome_driver.find_element(By.CSS_SELECTOR, 'form[novalidate="novalidate"]').text
         assert form_text.startswith('Create your Account'), 'Account creation form not presented'
+
+        sleep(self.sleep_time) # Pause for a moment to let video capture run.
 
     def test_store_search(self):
         """From the Store page Search for an item of your choice"""
         self.chrome_driver.get("https://app.gala.games/store")
 
-        sleep(5) # TODO: Ugly but will suffice until I get a chance to look into WebDriverWait and expected_conditions
+        self.accept_privacy_policy()
 
-        # Accept the Privacy Policy
-        # TODO: Turn this into a function/fixture.
-        shadow_host = self.chrome_driver.find_element(By.ID, 'usercentrics-root')
-        shadow_root = shadow_host.shadow_root
-        shadow_root.find_element(By.CSS_SELECTOR, 'button[data-testid="uc-accept-all-button"]').click()
-
-        sleep(5) # TODO: Ugly but will suffice until I get a chance to look into WebDriverWait and expected_conditions
-
-        self.chrome_driver.find_element(By.XPATH, "//input[@type='text']").click()
-        self.chrome_driver.find_element(By.XPATH, "//input[@type='text']").send_keys("best friend")
+        search_element = self.chrome_wait.until(ec.element_to_be_clickable((By.XPATH, "//input[@type='text' and @placeholder='Search']")))
+        search_element.click()
+        search_element.send_keys("best friend")
 
         # TODO: Ideally there would be some form of validation here to use in an assert.
 
-        sleep(5) # Give it some time to capture the video.
+        sleep(self.sleep_time) # Give it some time to capture the video.
 
-    def test_store_filter_by_towns_star_epic_rarity(self):
+    def test_store_filter_town_star_epic_rarity(self):
         """From the Store page I should be able to filter Town Star items by Epic Rarity"""
         self.chrome_driver.get("https://app.gala.games/store")
 
-        sleep(5) # TODO: Ugly but will suffice until I get a chance to look into WebDriverWait and expected_conditions
+        self.accept_privacy_policy()
 
-        # Accept the Privacy Policy
-        # TODO: Turn this into a function/fixture.
-        shadow_host = self.chrome_driver.find_element(By.ID, 'usercentrics-root')
-        shadow_root = shadow_host.shadow_root
-        shadow_root.find_element(By.CSS_SELECTOR, 'button[data-testid="uc-accept-all-button"]').click()
-
-        sleep(5) # TODO: Ugly but will suffice until I get a chance to look into WebDriverWait and expected_conditions
-
-        self.chrome_driver.find_element(By.XPATH, "//img[@alt='Town Star']").click()
-        self.chrome_driver.find_element(By.XPATH, '//*[@id="app"]/div/main/div/div/div[2]/div/div[2]/div/div/div[2]/div/div/div[4]/div/i').click() # TODO: Find a better way to get to this element.
+        town_star_filter_element = self.chrome_wait.until(ec.element_to_be_clickable((By.XPATH, "//img[@alt='Town Star']")))
+        town_star_filter_element.click()
+        epic_rarity_filter = self.chrome_wait.until(ec.element_to_be_clickable((By.XPATH, '//div[4]/div/i')))
+        epic_rarity_filter.click()
 
         # TODO: Ideally there would be some form of validation here to use in an assert.
 
-        sleep(5)  # Give it some time to capture the video.
+        sleep(self.sleep_time) # Give it some time to capture the video.
 
-    def test_store_filter_by_spider_tanks_rare_rarity(self):
+    def test_store_filter_spider_tanks_rare_rarity(self):
         """From the Store page I should be able to filter Spider Tank items by Rare Rarity"""
         self.chrome_driver.get("https://app.gala.games/store")
 
-        sleep(5) # TODO: Ugly but will suffice until I get a chance to look into WebDriverWait and expected_conditions
+        self.accept_privacy_policy()
 
-        # Accept the Privacy Policy
-        # TODO: Turn this into a function/fixture.
-        shadow_host = self.chrome_driver.find_element(By.ID, 'usercentrics-root')
-        shadow_root = shadow_host.shadow_root
-        shadow_root.find_element(By.CSS_SELECTOR, 'button[data-testid="uc-accept-all-button"]').click()
-
-        sleep(5) # TODO: Ugly but will suffice until I get a chance to look into WebDriverWait and expected_conditions
-
-        self.chrome_driver.find_element(By.XPATH, "//img[@alt='Spider Tanks']").click()
-        self.chrome_driver.find_element(By.XPATH, '//*[@id="app"]/div/main/div/div/div[2]/div/div[2]/div/div/div[2]/div/div/div[3]/div/i').click() # TODO: Find a better way to get to this element.
+        spider_tanks_filter_element = self.chrome_wait.until(ec.element_to_be_clickable((By.XPATH, "//img[@alt='Spider Tanks']")))
+        spider_tanks_filter_element.click()
+        rare_rarity_filter = self.chrome_wait.until(ec.element_to_be_clickable((By.XPATH, '//div[3]/div/i')))
+        rare_rarity_filter.click()
 
         # TODO: Ideally there would be some form of validation here to use in an assert.
 
-        sleep(5) # Give it some time to capture the video.
+        sleep(self.sleep_time) # Give it some time to capture the video.
