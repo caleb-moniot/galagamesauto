@@ -64,7 +64,17 @@ class TestGalaGames():
         search_element.click()
         search_element.send_keys("best friend")
 
-        # TODO: Ideally there would be some form of validation here to use in an assert.
+        # TODO: ADD A validation here that checks the nubmer of elements in the results window has changed.
+
+        best_friend_element = self.chrome_wait.until(ec.element_to_be_clickable(
+            (By.XPATH, "//p[contains(.,'Best Friend')]")))
+        best_friend_element.click()
+
+        expected_url = 'https://app.gala.games/games/buy-item/0x030e00000000000000000000000000000000?currency=GALA'
+        self.chrome_wait.until(ec.url_to_be(expected_url))
+
+        actual_url = self.chrome_driver.current_url
+        assert actual_url == expected_url, f'actual_url ({actual_url}) does not match expected_url ({expected_url})'
 
         sleep(self.sleep_time) # Give it some time to capture the video.
 
