@@ -1,8 +1,8 @@
-ARG PYTHON_VERSION=3.8.1
+ARG PYTHON_VERSION=3.8.10
 FROM python:${PYTHON_VERSION}-slim-buster
 
-COPY Pipfile* .
-COPY test*.py .
+COPY Pipfile* ./
+COPY test*.py ./
 
 RUN pip install pipenv
 RUN pipenv install --deploy --ignore-pipfile
